@@ -1,405 +1,96 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
-<html lang="sk">
+
+ <!DOCTYPE html>
+<html lang="sk" class="notranslate" translate="no">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Continental 2026 - Ročný Plán A4</title>
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Continental 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        .shutdown-pattern {
-            background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(239, 68, 68, 0.1) 5px, rgba(239, 68, 68, 0.1) 10px);
-        }
-        
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* OPTIMALIZÁCIA PRE TLAČIAREŇ */
-        @media print {
-            @page { 
-                size: A4 landscape; 
-                margin: 0.5cm; 
-            }
-            
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                color-adjust: exact !important;
-                position: static !important;
-                overflow: visible !important;
-            }
-
-            .print-hidden { display: none !important; }
-            
-            html, body { 
-                background: white !important; 
-                height: auto !important;
-                min-height: 0 !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                display: block !important;
-            }
-            
-            #appContainer { 
-                max-width: none !important; 
-                width: 100% !important; 
-                height: auto !important;
-                display: block !important;
-                padding: 0 !important;
-            }
-            
-            #poster { 
-                border: none !important; 
-                box-shadow: none !important;
-                display: block !important;
-                width: 100% !important;
-            }
-
-            #calendarGrid { 
-                display: grid !important;
-                grid-template-columns: repeat(4, 1fr) !important;
-                gap: 4px !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            .month-card { 
-                break-inside: avoid !important;
-                page-break-inside: avoid !important;
-                border: 1px solid #ddd !important;
-                display: block !important;
-                margin-bottom: 2px !important;
-            }
-
-            .day-cell { height: 32px !important; border-width: 1px !important; }
-            .day-number { font-size: 10px !important; font-weight: 900 !important; }
-            .shift-label { font-size: 8px !important; font-weight: 900 !important; }
-            h2 { font-size: 20px !important; margin: 0 !important; padding: 10px !important; }
-            h3 { font-size: 10px !important; }
-            
-            #legendSection {
-                margin-top: 10px !important;
-                padding: 10px !important;
-                border-top: 2px solid #000 !important;
-                background: #f0f0f0 !important;
-            }
-        }
-
-        .fullscreen-active {
-            max-width: none !important;
-            width: 100% !important;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-
-        #printAlert {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-        }
-    </style>
 </head>
-<body class="bg-slate-100 transition-colors duration-500" id="bodyTag">
-
-    <div id="printAlert" class="w-[90%] max-w-sm bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-white/20">
-        <div class="flex items-start gap-3 text-nowrap">
-            <i data-lucide="printer" class="w-6 h-6 text-orange-500 shrink-0"></i>
-            <div>
-                <p class="font-bold text-sm">Príprava dokumentu...</p>
-                <p class="text-[10px] text-slate-400 mt-1 leading-relaxed italic">V nastaveniach tlače zvoľte <b>"Na šírku"</b> a zaškrtnite <b>"Grafika na pozadí"</b>.</p>
-                <button onclick="document.getElementById('printAlert').style.display='none'" class="mt-2 text-[10px] font-black text-orange-500 uppercase">Zavrieť</button>
+<body class="bg-slate-100 notranslate">
+    <div class="max-w-7xl mx-auto p-4">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 gap-4">
+            <div class="text-center md:text-left">
+                <h1 class="text-3xl font-black text-slate-800 uppercase italic tracking-tighter text-orange-600">Continental 2026</h1>
+                <p class="text-slate-500 font-bold uppercase text-xs">Po-Pi: 8h / So: 12h</p>
             </div>
+            <div id="controls" class="flex gap-2 bg-slate-100 p-1 rounded-xl"></div>
+            <button onclick="window.print()" class="bg-slate-800 text-white px-6 py-2 rounded-xl font-bold active:scale-95 transition-all">TLAČIŤ A4</button>
         </div>
+        <div id="calendarGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
     </div>
-
-    <div class="max-w-6xl mx-auto min-h-screen flex flex-col transition-all duration-500" id="appContainer">
-        
-        <!-- OVLÁDACÍ PANEL -->
-        <div id="controls" class="p-4 bg-white shadow-md border-b sticky top-0 z-[50] print-hidden text-nowrap">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
-                <div class="flex items-center gap-3">
-                    <h1 class="font-black text-xl italic uppercase">Continental <span class="text-orange-500">2026</span></h1>
-                    <button onclick="toggleFullWidth()" id="widthToggle" class="hidden md:flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold hover:bg-slate-200 transition-all border border-slate-200 uppercase tracking-tighter">
-                        <i data-lucide="maximize-2" class="w-3 h-3"></i>
-                        <span>Široký režim</span>
-                    </button>
-                </div>
-                
-                <div class="flex items-center gap-2">
-                    <div class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-black uppercase border border-emerald-100">
-                        Zmena <span id="activeTeamLabel">C</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1 text-nowrap" id="teamButtons"></div>
-        </div>
-
-        <!-- HLAVNÝ OBSAH -->
-        <div id="poster" class="bg-white flex-grow shadow-xl transition-all duration-500">
-            <div class="p-6 border-b-4 border-[#ffa500] relative overflow-hidden bg-slate-50 text-nowrap">
-                <div class="absolute -right-4 -top-8 text-8xl font-black text-slate-200/50 italic select-none">2026</div>
-                <div class="relative z-10 text-nowrap">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Manufacturing Planner</p>
-                    <h2 class="text-3xl font-black text-slate-900 uppercase italic text-nowrap">ZMENA <span id="posterTeamLabel" class="text-orange-500">C</span></h2>
-                </div>
-            </div>
-
-            <!-- MRIEŽKA MESIACOV -->
-            <div id="calendarGrid" class="p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4 text-nowrap"></div>
-
-            <!-- LEGENDA -->
-            <div id="legendSection" class="p-6 bg-slate-900 text-white mt-10 text-nowrap">
-                <h3 class="font-black uppercase text-xs tracking-widest mb-4 text-slate-400 text-center border-b border-slate-800 pb-2">Legenda symbolov</h3>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 text-[10px] mb-6">
-                    <div class="flex items-center gap-3 text-nowrap"><div class="w-8 h-8 rounded bg-[#FFD700] text-black border border-black/20 flex items-center justify-center font-black">R</div> <span class="font-bold uppercase tracking-tighter">Ranná</span></div>
-                    <div class="flex items-center gap-3 text-nowrap"><div class="w-8 h-8 rounded bg-[#FF8C00] text-white border border-black/20 flex items-center justify-center font-black">P</div> <span class="font-bold uppercase tracking-tighter">Poobedná</span></div>
-                    <div class="flex items-center gap-3 text-nowrap text-nowrap"><div class="w-8 h-8 rounded bg-[#483D8B] text-white border border-black/20 flex items-center justify-center font-black text-nowrap">N</div> <span class="font-bold uppercase tracking-tighter text-nowrap">Nočná</span></div>
-                    <div class="flex items-center gap-3 text-nowrap text-nowrap"><div class="w-8 h-8 rounded bg-sky-400 text-slate-900 border border-black/20 flex items-center justify-center font-black text-[10px]">12</div> <span class="font-bold uppercase tracking-tighter text-nowrap">12h Smena</span></div>
-                    <div class="flex items-center gap-3 text-nowrap"><div class="w-8 h-8 rounded-full bg-red-600 border-2 border-white shadow-md flex items-center justify-center text-white text-nowrap"><i data-lucide="star" class="w-4 h-4 text-nowrap"></i></div> <span class="font-bold uppercase tracking-tighter text-nowrap">Sviatok</span></div>
-                    <div class="flex items-center gap-3 text-nowrap text-nowrap text-nowrap"><div class="w-8 h-8 rounded bg-white text-emerald-600 border border-slate-700 flex items-center justify-center shadow-md text-nowrap"><i data-lucide="banknote" class="w-5 h-5 text-nowrap"></i></div> <span class="font-bold uppercase tracking-tighter text-emerald-400 text-nowrap">Výplata</span></div>
-                </div>
-                
-                <div class="flex flex-col sm:flex-row gap-4 print-hidden text-nowrap">
-                    <button onclick="toggleCleanMode()" class="flex-1 py-4 bg-[#ffa500] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg active:scale-95 transition-transform text-nowrap">
-                        <i data-lucide="camera" class="w-5 h-5 inline-block mr-2 text-nowrap"></i> Režim Screenshot
-                    </button>
-                    <button onclick="handlePrint()" class="flex-1 py-4 bg-slate-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg active:scale-95 transition-transform text-nowrap">
-                        <i data-lucide="printer" class="w-5 h-5 inline-block mr-2 text-nowrap"></i> Tlačiť PDF / A4
-                    </button>
-                </div>
-                <p class="text-center text-[9px] text-slate-500 mt-8 uppercase tracking-[0.4em] text-nowrap">Continental Púchov • 2026</p>
-            </div>
-        </div>
-    </div>
-
-    <button id="exitBtn" onclick="toggleCleanMode()" class="hidden fixed bottom-6 right-6 z-[100] bg-slate-900 text-white p-4 rounded-full shadow-2xl border-2 border-white/20 text-nowrap">
-        <i data-lucide="arrow-left" class="w-6 h-6 text-nowrap text-nowrap text-nowrap"></i>
-    </button>
 
     <script>
-        let currentTeam = 'C';
-        let isClean = false;
-        let isFullWidth = false;
-
-        const cycle = [
-            { t: 'R', h: 8 }, { t: 'R', h: 8 }, { t: 'R', h: 8 }, { t: 'R', h: 8 }, 
-            { t: 'N', h: 8 }, { t: 'N', h: 12 }, { t: 'N', h: 8 },                  
-            { t: 'V', h: 0 }, { t: 'V', h: 0 }, { t: 'V', h: 0 }, { t: 'V', h: 0 }, 
-            { t: 'R', h: 8 }, { t: 'R', h: 8 }, { t: 'R', h: 8 },                  
-            { t: 'N', h: 8 }, { t: 'N', h: 8 }, { t: 'N', h: 8 }, { t: 'N', h: 8 }, 
-            { t: 'V', h: 0 }, { t: 'V', h: 0 }, { t: 'V', h: 0 },                  
-            { t: 'P', h: 8 }, { t: 'P', h: 8 }, { t: 'P', h: 8 }, { t: 'P', h: 8 }, { t: 'P', h: 8 }, 
-            { t: 'V', h: 0 }, { t: 'V', h: 0 }
-        ];
-
-        const teamOffsets = { A: 21, B: 7, C: 0, D: 14 };
-        const fpcData = {
-            A: [135.0, 157.5, 176.2, 142.5, 165.0, 135.0, 165.0, 150.0, 165.0, 168.7, 150.0, 264.7],
-            B: [150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 168.7, 176.2, 157.5, 311.2, 405.0],
-            C: [165.0, 165.0, 157.5, 157.5, 165.0, 165.0, 165.0, 168.7, 176.2, 176.2, 165.0, 157.5],
-            D: [127.5, 168.7, 150.0, 150.0, 172.5, 172.5, 165.0, 153.7, 150.0, 157.5, 150.0, 101.2]
-        };
-
-        const months = [
-            { name: "Január", d: 31, s: 3, c: "bg-blue-50 text-blue-700" },
-            { name: "Február", d: 28, s: 6, c: "bg-blue-50 text-blue-700" },
-            { name: "Marec", d: 31, s: 6, c: "bg-emerald-50 text-emerald-700" },
-            { name: "Apríl", d: 30, s: 2, c: "bg-emerald-50 text-emerald-700" },
-            { name: "Máj", d: 31, s: 4, c: "bg-emerald-50 text-emerald-700" },
-            { name: "Jún", d: 30, s: 0, c: "bg-orange-50 text-orange-700" },
-            { name: "Júl", d: 31, s: 2, c: "bg-orange-50 text-orange-700" },
-            { name: "August", d: 31, s: 5, c: "bg-orange-50 text-orange-700" },
-            { name: "September", d: 30, s: 1, c: "bg-amber-50 text-amber-800" },
-            { name: "Október", d: 31, s: 3, c: "bg-amber-50 text-amber-800" },
-            { name: "November", d: 30, s: 6, c: "bg-amber-50 text-amber-800" },
-            { name: "December", d: 31, s: 1, c: "bg-rose-50 text-rose-700" },
-        ];
-
-        // 8.5. odstránené zo zoznamu sviatkov
-        const holidays = ["0-1", "0-6", "3-3", "3-6", "4-1", "6-5", "7-29", "10-1", "11-24", "11-25", "11-26"];
-        const paydays = ["0-9", "1-6", "2-6", "3-9", "4-8", "5-5", "6-7", "7-7", "8-7", "9-7", "10-6", "11-7"];
+        let currentTeam = 'A';
+        const months = ['Január','Február','Marec','Apríl','Máj','Jún','Júl','August','September','Október','November','December'];
         
-        const planned12h_C = ["0-17", "1-14", "2-14", "3-11", "4-9", "5-6", "6-4", "7-1", "7-29", "8-26", "9-24", "10-21", "11-19"];
-        const planned12h_A = ["0-24", "1-21", "2-21", "3-18", "4-16", "5-13", "6-8", "7-5", "8-3", "9-31", "10-28"];
-        const planned12h_B = ["1-7", "2-7", "4-2", "4-30", "5-27", "7-22", "8-19", "9-17", "10-14", "11-12"];
-        const planned12h_D = ["0-31", "1-28", "2-28", "3-25", "4-23", "5-20", "6-18", "7-15", "8-12", "9-10", "10-7", "11-5"];
-
-        const forcedVoľno_A = ["5-11", "6-8", "7-5", "8-3"];
-        const forcedVoľno_D = ["0-17", "1-14", "2-14", "3-11", "4-9", "5-6", "6-4", "7-1", "8-26", "9-24", "10-21"];
-
-        const forced8hNight_A = ["6-13"];
-        const forced8hNight_B = []; // 13.7. odstránené (6-13)
-
-        // ✨ NOVÝ ZOZNAM: Vynútená ranná pre B
-        const forcedRanná_B = ["6-13"];
+        function getShift(date, team) {
+            const startPoint = new Date('2024-01-01'); 
+            const diffDays = Math.floor((date - startPoint) / 86400000);
+            const dayOfWeek = date.getDay();
+            const weekCycle = Math.floor(diffDays / 7) % 4;
+            const schedule = { 'A':[0,1,2,3], 'B':[1,2,3,0], 'C':[2,3,0,1], 'D':[3,0,1,2] };
+            const myCycle = schedule[team][weekCycle];
+            
+            if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                if (myCycle === 0) return 'R';
+                if (myCycle === 1) return 'P';
+                if (myCycle === 2) return 'N';
+            }
+            if (dayOfWeek === 6) {
+                if (myCycle === 0) return 'R12';
+                if (myCycle === 2) return 'N12';
+            }
+            return '';
+        }
 
         function render() {
-            document.getElementById('activeTeamLabel').innerText = currentTeam;
-            document.getElementById('posterTeamLabel').innerText = currentTeam;
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
-            const startDate = new Date(2026, 0, 5);
-
-            months.forEach((m, mIdx) => {
-                const fpc = fpcData[currentTeam][mIdx];
-                const monthDiv = document.createElement('div');
-                monthDiv.className = "month-card bg-white border shadow-sm rounded-3xl overflow-hidden flex flex-col h-fit text-nowrap";
-                
-                let html = `
-                    <div class="flex justify-between items-center px-4 py-2 border-b-2 ${m.c}">
-                        <h3 class="font-black uppercase text-[10px] tracking-widest text-nowrap">${m.name}</h3>
-                        <div class="text-[8px] font-black bg-white/50 px-2 py-0.5 rounded-lg text-nowrap">${fpc.toFixed(1)}h</div>
-                    </div>
-                    <div class="p-2">
-                        <div class="grid grid-cols-7 gap-1 text-[9px] font-black text-slate-900 text-center uppercase pb-1 mb-1 border-b border-slate-200 bg-slate-50/50 pt-1 text-nowrap text-nowrap text-nowrap text-nowrap text-nowrap text-nowrap text-nowrap">
-                            <div>Po</div><div>Ut</div><div>St</div><div>Št</div><div>Pi</div><div>So</div><div>Ne</div>
-                        </div>
-                        <div class="grid grid-cols-7 gap-1 text-nowrap">
-                `;
-
-                for(let i=0; i<m.s; i++) html += '<div></div>';
-
-                for(let d=1; d<=m.d; d++) {
-                    const currDate = new Date(2026, mIdx, d);
-                    const diffDays = Math.round((currDate - startDate) / (1000 * 60 * 60 * 24));
-                    let idx = (diffDays + teamOffsets[currentTeam]) % 28;
-                    while(idx < 0) idx += 28;
-                    
-                    const shift = cycle[idx];
-                    const isHoliday = holidays.includes(`${mIdx}-${d}`);
-                    const isPayday = paydays.includes(`${mIdx}-${d}`);
-                    
-                    // Kontroly vynútených stavov
-                    const isForcedVoľnoA = (currentTeam === 'A') && forcedVoľno_A.includes(`${mIdx}-${d}`);
-                    const isForcedVoľnoD = (currentTeam === 'D') && forcedVoľno_D.includes(`${mIdx}-${d}`);
-                    const isForced8hA = (currentTeam === 'A') && forced8hNight_A.includes(`${mIdx}-${d}`);
-                    const isForced8hB = (currentTeam === 'B') && forced8hNight_B.includes(`${mIdx}-${d}`);
-                    
-                    // ✨ Kontrola vynútenej rannej
-                    const isForcedRannáB = (currentTeam === 'B') && forcedRanná_B.includes(`${mIdx}-${d}`);
-                    
-                    const isAnyForcedVoľno = isForcedVoľnoA || isForcedVoľnoD;
-
-                    const isPlanned12A = (currentTeam === 'A') && planned12h_A.includes(`${mIdx}-${d}`);
-                    const isPlanned12B = (currentTeam === 'B') && planned12h_B.includes(`${mIdx}-${d}`);
-                    const isPlanned12C = (currentTeam === 'C') && planned12h_C.includes(`${mIdx}-${d}`);
-                    const isPlanned12D = (currentTeam === 'D') && planned12h_D.includes(`${mIdx}-${d}`);
-                    
-                    const is12 = (shift.h === 12 || isPlanned12A || isPlanned12B || isPlanned12C || isPlanned12D) && !isAnyForcedVoľno && !isForced8hA && !isForced8hB && !isForcedRannáB;
-
-                    const isShut = (mIdx === 3 && d >= 3 && d <= 6) || (mIdx === 6 && d >= 20 && d <= 26) || (mIdx === 11 && d >= 19 && d <= 31);
-                    const isWeekend = (m.s + d - 1) % 7 >= 5;
-
-                    let bg = "bg-slate-50";
-                    let txt = "text-slate-900";
-                    let shortcut = shift.t;
-
-                    if(shift.t === 'R') { bg = "bg-[#FFD700]"; txt = "text-black"; }
-                    else if(shift.t === 'P') { bg = "bg-[#FF8C00]"; txt = "text-white"; }
-                    else if(shift.t === 'N') { bg = "bg-[#483D8B]"; txt = "text-white"; }
-                    
-                    if(is12) { 
-                        bg = "bg-sky-400"; 
-                        txt = "text-slate-900 font-black"; 
-                        shortcut = "12"; 
-                    }
-                    
-                    // Prioritné prepisy
-                    if(isForced8hA || isForced8hB) { bg = "bg-[#483D8B]"; txt = "text-white"; shortcut = "N"; }
-                    if(isForcedRannáB) { bg = "bg-[#FFD700]"; txt = "text-black"; shortcut = "R"; } // ✨ Vynútená ranná
-                    if(isAnyForcedVoľno) { bg = "bg-slate-50"; txt = "text-slate-400"; shortcut = "V"; }
-
-                    if(isHoliday) { bg = "bg-red-600"; txt = "text-white"; shortcut = ""; } 
-                    else if(isShut) { bg = "bg-red-50 shutdown-pattern"; txt = "text-red-700 font-black"; }
-
-                    html += `
-                        <div class="day-cell h-9 flex flex-col items-center justify-center rounded-lg border-2 relative ${bg} ${txt} ${shift.t !== 'V' || isHoliday || is12 ? 'border-black/5 shadow-sm' : 'border-slate-50'} ${isShut && !isHoliday ? 'ring-1 ring-red-500' : ''}">
-                            <span class="day-number text-[11px] font-black leading-none ${isWeekend ? 'underline decoration-black/30' : ''}">${d}</span>
-                            <div class="shift-label mt-0.5 text-[8px] font-black opacity-80 leading-none">
-                                ${isHoliday ? '<i data-lucide="star" class="w-3 h-3 fill-white text-nowrap"></i>' : (shortcut === 'V' && !is12 ? '' : shortcut)}
-                            </div>
-                            ${isHoliday && !isShut ? '<div class="absolute -top-1 -right-1 w-3 h-3 bg-red-600 rounded-full border-2 border-white flex items-center justify-center"><i data-lucide="star" class="w-2 h-2 text-white fill-white text-nowrap"></i></div>' : ''}
-                            ${isPayday ? '<div class="absolute -bottom-1 -right-1 text-emerald-600 bg-white rounded p-0.5 shadow-md border border-slate-200"><i data-lucide="banknote" class="w-3.5 h-3.5 text-nowrap text-nowrap"></i></div>' : ''}
-                        </div>
-                    `;
+            months.forEach((name, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-3xl shadow-sm border border-slate-100";
+                let h = `<h2 class="font-black text-center mb-4 text-slate-700 border-b pb-2 uppercase text-sm tracking-widest">${name}</h2>`;
+                h += `<div class="grid grid-cols-7 gap-1 text-[10px] font-bold text-slate-300 text-center mb-2 italic tracking-tighter"><div>PO</div><div>UT</div><div>ST</div><div>ŠT</div><div>PI</div><div>SO</div><div>NE</div></div><div class="grid grid-cols-7 gap-1">`;
+                const first = new Date(2026, idx, 1);
+                for(let i=1; i<(first.getDay()||7); i++) h += '<div></div>';
+                for(let d=1; d<=new Date(2026, idx+1, 0).getDate(); d++) {
+                    const date = new Date(2026, idx, d);
+                    const shift = getShift(date, currentTeam);
+                    let color = "bg-slate-50 text-slate-200";
+                    if(shift.includes('R')) color = "bg-orange-500 text-white font-bold shadow-md shadow-orange-100";
+                    if(shift === 'P') color = "bg-blue-500 text-white font-bold shadow-md shadow-blue-100";
+                    if(shift.includes('N')) color = "bg-slate-800 text-white font-bold shadow-md shadow-slate-300";
+                    const isSun = date.getDay() === 0;
+                    h += `<div class="h-10 flex flex-col items-center justify-center rounded-xl text-xs ${color}">
+                            <span class="${isSun?'underline decoration-2':''}">${d}</span>
+                            <span class="text-[8px]">${shift}</span>
+                          </div>`;
                 }
-
-                html += '</div></div>';
-                monthDiv.innerHTML = html;
-                grid.appendChild(monthDiv);
+                card.innerHTML = h + `</div>`;
+                grid.appendChild(card);
             });
-            lucide.createIcons();
         }
 
-        function setTeam(t) {
-            currentTeam = t;
-            render();
-            if(!isClean) window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function toggleFullWidth() {
-            isFullWidth = !isFullWidth;
-            const container = document.getElementById('appContainer');
-            if(isFullWidth) container.classList.add('fullscreen-active');
-            else container.classList.remove('fullscreen-active');
-            lucide.createIcons();
-        }
-
-        function toggleCleanMode() {
-            isClean = !isClean;
-            document.getElementById('controls').classList.toggle('hidden', isClean);
-            document.getElementById('exitBtn').classList.toggle('hidden', !isClean);
-            const container = document.getElementById('appContainer');
-            if(isClean) {
-                container.classList.add('fullscreen-active');
-                document.getElementById('bodyTag').className = 'bg-white p-0';
-                window.scrollTo({ top: 0 });
-            } else {
-                if(!isFullWidth) container.classList.remove('fullscreen-active');
-                document.getElementById('bodyTag').className = 'bg-slate-100 transition-colors duration-500';
-            }
-            lucide.createIcons();
-        }
-
-        function handlePrint() {
-            document.getElementById('printAlert').style.display = 'block';
-            if (!isClean) toggleCleanMode();
-            setTimeout(() => {
-                window.print();
-                setTimeout(() => { 
-                    document.getElementById('printAlert').style.display = 'none'; 
-                }, 1000);
-            }, 1500);
-        }
-
-        const container = document.getElementById('teamButtons');
+        const ctrl = document.getElementById('controls');
         ['A','B','C','D'].forEach(t => {
-            const b = document.createElement('button');
-            b.innerText = t;
-            b.className = "flex-1 min-w-[60px] py-3 rounded-2xl font-black text-sm shadow-sm transition-all " + (t === currentTeam ? "bg-orange-500 text-white" : "bg-white text-slate-400");
-            b.onclick = () => {
-                document.querySelectorAll('#teamButtons button').forEach(el => {
-                    el.classList.remove('bg-orange-500', 'text-white');
-                    el.classList.add('bg-white', 'text-slate-400');
-                });
-                b.classList.remove('bg-white', 'text-slate-400');
-                b.classList.add('bg-orange-500', 'text-white');
-                currentTeam = t;
-                render();
-            };
-            container.appendChild(b);
+            const btn = document.createElement('button');
+            btn.innerText = t;
+            btn.className = `w-12 h-10 rounded-lg font-black transition-all ` + (t===currentTeam ? 'bg-white shadow-md text-orange-600' : 'text-slate-400');
+            btn.onclick = () => { currentTeam = t; render(); updateButtons(); };
+            ctrl.appendChild(btn);
         });
-
+        function updateButtons() {
+            document.querySelectorAll('#controls button').forEach(b => {
+                b.className = `w-12 h-10 rounded-lg font-black transition-all ` + (b.innerText===currentTeam ? 'bg-white shadow-md text-orange-600' : 'text-slate-400');
+            });
+        }
         render();
     </script>
 </body>
 </html>
-
+       
+          
+             
+  
